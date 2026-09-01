@@ -735,7 +735,7 @@ type PacketConnWrapper interface {
 // the historical default behavior unchanged.
 func GetQUICCongestionControl() (quic.CongestionControl, quic.BbrProfile, error) {
 	v := os.Getenv("NAIVE_QUIC_CONGESTION")
-	if v == "" {
+	if strings.TrimSpace(v) == "" {
 		return quic.Cubic, "", nil
 	}
 	switch strings.ToLower(strings.TrimSpace(v)) {
