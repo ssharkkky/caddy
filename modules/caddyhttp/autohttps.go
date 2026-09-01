@@ -505,9 +505,13 @@ redirServersLoop:
 	// persist the domains/IPs we're managing certs for through provisioning/startup
 	app.allCertDomains = uniqueDomainsForCerts
 
+	// The adjusted app contains raw module configuration. Reflecting it into a
+	// debug log can disclose authentication credentials and other plugin
+	// secrets, so log only non-sensitive topology metadata here.
 	logger.Debug("adjusted config",
-		zap.Reflect("tls", app.tlsApp),
-		zap.Reflect("http", app))
+		zap.Int("managed_domains", len(uniqueDomainsForCerts)),
+		zap.Int("http_servers", len(app.Servers)),
+		zap.Bool("tls_configured", app.tlsApp != nil))
 
 	return nil
 }

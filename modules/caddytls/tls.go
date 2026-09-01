@@ -39,7 +39,7 @@ import (
 )
 
 func init() {
-	caddy.RegisterModule(TLS{})
+	caddy.RegisterModule(new(TLS))
 	caddy.RegisterModule(AutomateLoader{})
 }
 
@@ -151,7 +151,7 @@ type TLS struct {
 }
 
 // CaddyModule returns the Caddy module information.
-func (TLS) CaddyModule() caddy.ModuleInfo {
+func (*TLS) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "tls",
 		New: func() caddy.Module { return new(TLS) },
