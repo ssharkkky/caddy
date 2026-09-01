@@ -176,3 +176,5 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	howett.net/plist v1.0.0 // indirect
 )
+
+replace github.com/quic-go/quic-go => github.com/ssharkkky/quic-go v0.59.1-0.20260901171950-f84ad47630af
