@@ -477,12 +477,18 @@ func (na NetworkAddress) ListenQUIC(ctx context.Context, portOffset uint, config
 		if allow0rttconf != nil {
 			allow0rtt = *allow0rttconf
 		}
+		cc, profile, err := GetQUICCongestionControl()
+		if err != nil {
+			return nil, err
+		}
 		earlyLn, err := tr.ListenEarly(
 			http3.ConfigureTLSConfig(quicTlsConfig),
 			&quic.Config{
-				Allow0RTT:       allow0rtt,
-				EnableDatagrams: true,
-				Tracer:          h3qlog.DefaultConnectionTracer,
+				Allow0RTT:         allow0rtt,
+				EnableDatagrams:   true,
+				Tracer:            h3qlog.DefaultConnectionTracer,
+				CongestionControl: cc,
+				BbrProfile:        profile,
 			},
 		)
 		if err != nil {
@@ -731,6 +737,32 @@ type ListenerWrapper interface {
 // appropriate.
 type PacketConnWrapper interface {
 	WrapPacketConn(net.PacketConn) net.PacketConn
+}
+
+// GetQUICCongestionControl parses the NAIVE_QUIC_CONGESTION environment
+// variable and returns the corresponding quic-go CongestionControl and
+// BbrProfile. Supported values are cubic (default), bbr-standard,
+// bbr-conservative, and bbr-aggressive. Empty/unset defaults to cubic.
+// An invalid value returns an error so the caller can fail closed at
+// startup. The cubic value is the zero-value CongestionControl and keeps
+// the historical default behavior unchanged.
+func GetQUICCongestionControl() (quic.CongestionControl, quic.BbrProfile, error) {
+	v := os.Getenv("NAIVE_QUIC_CONGESTION")
+	if strings.TrimSpace(v) == "" {
+		return quic.Cubic, "", nil
+	}
+	switch strings.ToLower(strings.TrimSpace(v)) {
+	case "cubic":
+		return quic.Cubic, "", nil
+	case "bbr-standard":
+		return quic.Bbr, quic.BbrProfileStandard, nil
+	case "bbr-conservative":
+		return quic.Bbr, quic.BbrProfileConservative, nil
+	case "bbr-aggressive":
+		return quic.Bbr, quic.BbrProfileAggressive, nil
+	default:
+		return quic.Cubic, "", fmt.Errorf("invalid NAIVE_QUIC_CONGESTION %q: must be one of cubic, bbr-standard, bbr-conservative, bbr-aggressive", v)
+	}
 }
 
 // listenerPool stores and allows reuse of active listeners.

@@ -820,14 +820,20 @@ func (s *Server) serveHTTP3(addr caddy.NetworkAddress, tlsCfg *tls.Config) error
 
 	// create HTTP/3 server if not done already
 	if s.h3server == nil {
+		cc, profile, err := caddy.GetQUICCongestionControl()
+		if err != nil {
+			return err
+		}
 		s.h3server = &http3.Server{
 			Handler:         s,
 			TLSConfig:       tlsCfg,
 			MaxHeaderBytes:  s.MaxHeaderBytes,
 			EnableDatagrams: true,
 			QUICConfig: &quic.Config{
-				Versions: []quic.Version{quic.Version1, quic.Version2},
-				Tracer:   h3qlog.DefaultConnectionTracer,
+				Versions:          []quic.Version{quic.Version1, quic.Version2},
+				Tracer:            h3qlog.DefaultConnectionTracer,
+				CongestionControl: cc,
+				BbrProfile:        profile,
 			},
 			IdleTimeout: time.Duration(s.IdleTimeout),
 		}
