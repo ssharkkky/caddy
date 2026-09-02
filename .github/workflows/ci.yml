@@ -11,6 +11,7 @@ on:
     branches:
       - master
       - 2.*
+  workflow_dispatch:
 
 env:
   GOFLAGS: '-tags=nobadger,nomysql,nopgx'

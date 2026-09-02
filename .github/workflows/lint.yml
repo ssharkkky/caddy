@@ -9,6 +9,7 @@ on:
     branches:
       - master
       - 2.*
+  workflow_dispatch:
 
 permissions:
   contents: read
