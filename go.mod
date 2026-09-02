@@ -180,4 +180,4 @@ require (
 	howett.net/plist v1.0.0 // indirect
 )
 
-replace github.com/quic-go/quic-go => github.com/ssharkkky/quic-go v0.62.1-0.20260902183743-70dba6817bbb
+replace github.com/quic-go/quic-go => github.com/ssharkkky/quic-go v0.62.1-0.20260902185508-c308178d8c77
