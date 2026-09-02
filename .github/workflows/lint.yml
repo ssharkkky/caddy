@@ -68,6 +68,7 @@ jobs:
           # only-new-issues: true
 
   govulncheck:
+    if: github.event_name == 'pull_request'
     permissions:
       contents: read
       pull-requests: read
@@ -85,7 +86,7 @@ jobs:
           check-latest: true
   
   dependency-review:
-    continue-on-error: true
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
